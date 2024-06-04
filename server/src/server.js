@@ -7,9 +7,6 @@ const cors = require("cors");
 const app = express();
 const server = http.createServer(app);
 
-// Configura CORS para Express
-app.use(cors());
-
 // Configura CORS para Socket.IO
 const io = socketIo(server, {
   cors: {
@@ -18,8 +15,19 @@ const io = socketIo(server, {
   },
 });
 
+const corsOptions = {
+  origin: '*', // Permite cualquier origen
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  credentials: true,
+  optionsSuccessStatus: 204
+};
+
+app.use(cors(corsOptions));
+
 // Configuración y manejo del cliente de Redis
-const redisClient = createClient();
+const redisUrl = process.env.REDIS_URL || "redis://redis:6379";
+const redisClient = createClient({ url: redisUrl });
+
 redisClient.on("error", (err) => console.error("Redis Client Error", err));
 
 redisClient
@@ -54,7 +62,7 @@ redisClient
     });
 
     // Subscribe to Redis channels
-    const redisSubscriber = createClient();
+    const redisSubscriber = createClient({ url: redisUrl });
     redisSubscriber.on("error", (err) =>
       console.error("Redis Subscriber Client Error", err)
     );

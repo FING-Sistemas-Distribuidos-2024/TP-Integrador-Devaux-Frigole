@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import io from "socket.io-client";
 
-const socket = io("localhost:4000");
+const socket = io(process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3000");
 
 export default function Home() {
   const [message, setMessage] = useState("");
