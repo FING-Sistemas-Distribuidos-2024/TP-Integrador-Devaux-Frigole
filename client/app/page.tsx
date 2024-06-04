@@ -31,23 +31,37 @@ export default function Home() {
   };
 
   return (
-    <>
-      <div>
-        <h1>Chat App</h1>
-        <div id="chat">
-          <div>Messages</div>
+    <div>
+      <div className="w-screen h-screen flex flex-col items-center gap-3">
+        <h1 className="flex pt-5">Chat App</h1>
+        <div className="w-2/3 flex flex-col bg-neutral-800 p-5 gap-2 h-5/6  ">
+          <div className="flex justify-center ">Messages</div>
           {messages.map((msg, index) => (
-            <div key={index}>{msg}</div>
+            <div className="bg-neutral-700 p-1" key={index}>
+              {msg}
+            </div>
           ))}
         </div>
-        <input
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          placeholder="Type a message"
-        />
-        <button onClick={sendMessage}>Send</button>
+        <div className="w-2/3 flex justify-between gap-2">
+          <input
+            className="bg-neutral-700 p-1 w-1/2"
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            placeholder="Type a message"
+          />
+          <div className="flex justify-between w-1/2 gap-2 ">
+            <button className="bg-neutral-800 w-1/2" onClick={sendMessage}>
+              Send
+            </button>
+            <button
+              className="bg-red-600 w-1/2"
+              onClick={() => setMessages([])}
+            >
+              Clear
+            </button>
+          </div>
+        </div>
       </div>
-      <button onClick={() => setMessages([])}>Clear</button>
-    </>
+    </div>
   );
 }
