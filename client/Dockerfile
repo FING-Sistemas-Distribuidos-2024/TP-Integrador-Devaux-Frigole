@@ -1,5 +1,5 @@
 # Usa una imagen base de Node.js
-FROM node:21-alpine
+FROM node:21-slim
 
 # Crea y establece el directorio de trabajo
 WORKDIR /usr/src/app
@@ -12,6 +12,13 @@ RUN npm install
 
 # Copia el resto del código
 COPY . .
+
+ARG BACKEND_URL
+
+# Imprimir backend url
+RUN echo $BACKEND_URL
+
+ENV NEXT_PUBLIC_BACKEND_URL=$BACKEND_URL
 
 # Construye la aplicación para producción
 RUN npm run build

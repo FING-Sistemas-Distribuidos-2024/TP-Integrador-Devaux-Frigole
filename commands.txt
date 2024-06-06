@@ -1,0 +1,7 @@
+eval $(minikube docker-env)
+docker build -t chat-backend .
+kubectl rollout restart deployment/chat-backend
+kubectl apply -f k8s/job.yaml
+
+kubectl get jobs
+kubectl logs job/update-backend-config
