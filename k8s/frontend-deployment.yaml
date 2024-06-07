@@ -1,36 +1,38 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: chat-frontend
+  name: chat-frontend-bauti-fran
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: chat-frontend
+      app: chat-frontend-bauti-fran
   template:
     metadata:
       labels:
-        app: chat-frontend
+        app: chat-frontend-bauti-fran
     spec:
       containers:
-      - name: chat-frontend
-        image: chat-frontend
-        imagePullPolicy: Never  # Asegura que se use la imagen local
+      - name: chat-frontend-bauti-fran
+        image: bautifrigole/chat-frontend:upgrade
         ports:
         - containerPort: 3000
-        envFrom:
-        - configMapRef:
-            name: backend-config
+        #env:
+        #- name: NEXT_PUBLIC_BACKEND_URL
+        #  valueFrom:
+        #    configMapKeyRef:
+        #      name: backend-config
+        #      key: BACKEND_URL
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: chat-frontend
+  name: chat-frontend-bauti-fran
 spec:
   selector:
-    app: chat-frontend
+    app: chat-frontend-bauti-fran
   ports:
   - protocol: TCP
-    port: 3000
+    port: 80
     targetPort: 3000
-  type: NodePort
+  type: LoadBalancer

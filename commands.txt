@@ -1,7 +1,71 @@
+# Start minikube
+sudo systemctl start docker
+minikube start
 eval $(minikube docker-env)
+kubectl get pods
+
+# Dockerizar
+eval $(minikube docker-env)
+kubectl apply -f ./k8s/backend-deployment.yaml
 docker build -t chat-backend .
 kubectl rollout restart deployment/chat-backend
 kubectl apply -f k8s/job.yaml
 
+# Obtener logs
+kubectl logs -l app=chat-frontend-bauti-fran
+
+minikube service list
+
+kubectl delete deployment chat-frontend
+
 kubectl get jobs
 kubectl logs job/update-backend-config
+
+
+
+
+
+
+kubectl apply -f ./k8s/redis-deployment.yaml
+
+docker build -t chat-backend ./server/
+kubectl apply -f ./k8s/backend-deployment.yaml
+
+
+# Obtener la IP de Minikube
+MINIKUBE_IP=$(minikube ip)
+
+# Obtener el puerto del servicio backend
+BACKEND_PORT=$(kubectl get svc chat-backend -o=jsonpath='{.spec.ports[0].nodePort}')
+
+# Construir la URL completa del backend
+BACKEND_URL="http://${MINIKUBE_IP}:${BACKEND_PORT}"
+
+
+docker build --build-arg BACKEND_URL=$BACKEND_URL -t chat-frontend ./client/
+
+kubectl apply -f ./k8s/frontend-deployment.yaml
+
+kubectl rollout restart deployment/chat-frontend
+kubectl apply -f k8s/job.yaml
+
+
+
+
+# Buildear imagenes de docker (https://www.freecodecamp.org/news/how-to-dockerize-a-react-application/)
+docker image build -t chat-backend:latest . 
+docker images
+docker login
+docker image tag chat-backend bautifrigole/chat-backend
+docker push bautifrigole/chat-backend:latest
+
+# Nueva versión
+docker image build -t chat-frontend:upgrade1 .
+docker image tag chat-frontend:upgrade1 bautifrigole/chat-frontend:upgrade1
+docker push bautifrigole/chat-frontend:upgrade1
+
+
+# Cambiar desde minikube a kubernetes
+kubectl config get-contexts # Command to list available clusters.
+kubectl config use-context <context-name> # Command to switch to a different cluster.
+kubectl cluster-info # Command to verify the switching to a desired cluster.
