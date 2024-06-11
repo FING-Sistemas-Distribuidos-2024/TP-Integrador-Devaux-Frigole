@@ -3,7 +3,9 @@ import { useEffect, useState } from "react";
 import io from "socket.io-client";
 
 console.log("Backend URL:", process.env.NEXT_PUBLIC_BACKEND_URL);
-const socket = io(process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000");
+const socket = io(
+  process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000"
+);
 
 export default function Home() {
   const [message, setMessage] = useState("");
@@ -23,12 +25,18 @@ export default function Home() {
     return () => {
       socket.off("message", messageListener);
     };
-  }, []);
+  }, []); // <-- Agregar una dependencia vacía aquí
 
   const sendMessage = () => {
     console.log("Sent message:", message);
     socket.emit("message", { room: "general", message });
     setMessage("");
+  };
+
+  const clearHistory = () => {
+    console.log("Clearing history");
+    socket.emit("clear", { room: "general" });
+    setMessages([]);
   };
 
   return (
@@ -62,6 +70,12 @@ export default function Home() {
               onClick={() => setMessages([])}
             >
               Clear
+            </button>
+            <button
+              className="bg-red-600 py-1 px-2 rounded-lg w-1/2"
+              onClick={() => clearHistory()}
+            >
+              Reset History
             </button>
           </div>
         </div>
