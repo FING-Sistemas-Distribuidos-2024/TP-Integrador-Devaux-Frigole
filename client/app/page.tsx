@@ -3,9 +3,9 @@ import { useEffect, useState } from "react";
 import io from "socket.io-client";
 
 console.log("Backend URL:", process.env.NEXT_PUBLIC_BACKEND_URL);
-const socket = io(
-  process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:4000"
-);
+const backURL = loadEnv();
+
+const socket = io(await (backURL || "http://localhost:4000"));
 
 export default function Home() {
   const [message, setMessage] = useState("");
