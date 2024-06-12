@@ -26,6 +26,7 @@ app.use(cors(corsOptions));
 
 // Configuración y manejo del cliente de Redis
 const redisUrl = process.env.REDIS_URL || "redis://localhost:6379";
+console.log("Redis URL:", redisUrl);
 const redisClient = createClient({ url: redisUrl });
 
 redisClient.on("error", (err) => console.error("Redis Client Error", err));
@@ -36,26 +37,49 @@ redisClient
     console.log("Connected to Redis");
 
     io.on("connection", (socket) => {
-      //console.log("Client connected");
-      // Join a room
-      socket.on("join", (room) => {
+
+      socket.on("join", async (room) => {
+        // Chequear que el cliente no esté en la sala
+        /*if (socket.rooms.has(room)) {
+          console.log(`Client already in room: ${room}`);
+          return;
+        }*/
+
         socket.join(room);
         console.log(`Client joined room: ${room}`);
-      });
 
-      // Handle incoming messages
-      socket.on("message", async (data) => {
-        const { room, message } = data;
-        console.log(`BackEnd Received message: ${message} in room: ${room}`);
-        // Publish the message to Redis
+        // Recuperar mensajes antiguos de Redis y enviarlos al cliente
         try {
-          await redisClient.publish(room, message);
+          console.log(`Retrieving old messages for room: ${room}`);
+          const messages = await redisClient.lRange(`messages`, 0, -1);
+          messages.forEach((message) => {
+            console.log(`Sending old message: ${message}`);
+            socket.emit("message", message );
+          });
         } catch (err) {
-          console.error("Error publishing message to Redis:", err);
+          console.error("Error retrieving messages from Redis:", err);
         }
       });
 
-      // Handle disconnect
+      socket.on("clear", async (data) => {    console.error("Redis Subscriber Client Error", err)
+        const { room } = data;
+        console.log(`Deleting messages in room: ${room}`);
+        await redisClient.del(`messages`);
+      });
+      
+      socket.on("message", async (data) => {
+        const { room, message } = data;
+        console.log(`BackEnd Received message: ${message} in room: ${room}`);
+
+        // Guardar el mensaje en Redis
+        try {
+          //await redisClient.rPush(`messages`, message);
+          await redisClient.publish(room, message);
+        } catch (err) {
+          console.error("Error saving or publishing message to Redis:", err);
+        }
+      });
+
       socket.on("disconnect", () => {
         console.log("Client disconnected");
       });
@@ -86,7 +110,7 @@ redisClient
   });
 
 app.get("/", (req, res) => {
-  res.send("Chat server is running");
+  res.send("Chat server is running v3");
 });
 
 const PORT = process.env.PORT || 4000;

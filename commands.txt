@@ -60,9 +60,9 @@ docker image tag chat-backend bautifrigole/chat-backend
 docker push bautifrigole/chat-backend:latest
 
 # Nueva versión
-docker image build -t chat-frontend:upgrade1 .
-docker image tag chat-frontend:upgrade1 bautifrigole/chat-frontend:upgrade1
-docker push bautifrigole/chat-frontend:upgrade1
+docker image build -t chat-backend:v3 .
+docker image tag chat-backend:v3 bautifrigole/chat-backend:v3
+docker push bautifrigole/chat-backend:v3
 
 
 # Cambiar desde minikube a kubernetes

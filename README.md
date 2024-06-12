@@ -10,14 +10,14 @@ Este proyecto es una aplicación de chat en tiempo real construida utilizando Re
 
 ### 1. Frontend
 
-**Tecnologías**: React, Socket.IO
+**Tecnologías**: Next, React, Socket.IO
 
 El frontend de la aplicación está construido con React. Utiliza la biblioteca Socket.IO para establecer una conexión WebSocket con el backend, lo que permite la comunicación en tiempo real. Los mensajes enviados desde el frontend se transmiten al backend y viceversa, permitiendo que los usuarios vean los mensajes en tiempo real.
 
 **Configuración**:
 
-- La URL del backend se configura a través de una variable de entorno `REACT_APP_BACKEND_URL`, que se obtiene de un ConfigMap en Kubernetes.
-- Los usuarios pueden unirse a diferentes salas de chat y enviar mensajes que se transmiten a través de WebSockets.
+- La URL del backend se configura a través de una variable de entorno `BACKEND_URL`, que se establece a través de los manifiestos de kubernetes.
+- Los usuarios pueden unirse a una única sala de chat y enviar mensajes que se transmiten a través de WebSockets.
 
 ### 2. Backend
 
@@ -29,7 +29,6 @@ El backend está desarrollado con Node.js y Express. Utiliza Socket.IO para mane
 
 - **WebSockets**: El backend establece una conexión WebSocket con los clientes para transmitir mensajes en tiempo real.
 - **Redis**: Actúa como intermediario de mensajes. Los mensajes enviados desde el frontend se publican en Redis, y los suscriptores en el backend reciben estos mensajes y los retransmiten a todos los clientes conectados.
-- **CORS**: Configurado para permitir el acceso desde el frontend.
 
 **Configuración**:
 
@@ -53,7 +52,7 @@ En la carpeta `k8s` se encuentran todos los archivos YAML necesarios para desple
 - **redis-deployment.yaml**: Define el despliegue de Redis, incluyendo los contenedores y el servicio.
 - **job.yaml**: Un Job de Kubernetes para actualizar el ConfigMap con la URL del backend después de su despliegue.
 
-### Pasos para Desplegar la Aplicación
+### Pasos para Desplegar la Aplicación en Kubernetes con Minikube
 
 1. **Iniciar Minikube**:
 
@@ -61,7 +60,7 @@ En la carpeta `k8s` se encuentran todos los archivos YAML necesarios para desple
    minikube start
    ```
 
-2. **Construir las Imágenes de Docker y Subirlas a Minikube**:
+2. **Construir las Imágenes de Docker**:
 
    ```bash
    eval $(minikube docker-env)
@@ -102,3 +101,7 @@ En la carpeta `k8s` se encuentran todos los archivos YAML necesarios para desple
    ```
 
 Este comando abrirá la URL en tu navegador, permitiéndote interactuar con la aplicación de chat en tiempo real.
+
+### Despliegue Actual
+
+Actualmente, la aplicación se encuentra corriendo en http://10.230.110.12:80, en el cluster Proxmox de la materia.
