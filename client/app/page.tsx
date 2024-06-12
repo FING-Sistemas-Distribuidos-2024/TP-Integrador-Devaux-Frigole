@@ -1,48 +1,64 @@
-'use client';
+"use client";
 
-import React, { useState, useCallback, useEffect } from 'react';
-import useWebSocket, { ReadyState } from 'react-use-websocket';
+import React, { useState, useCallback, useEffect } from "react";
+import useWebSocket, { ReadyState } from "react-use-websocket";
 
-export const WebSocketDemo = () => {
+const WebSocketDemo = () => {
   // Public API that will echo messages sent to it back to the client
-  const [socketUrl, setSocketUrl] = useState('ws://127.0.0.1:4000');
-  const [messageHistory, setMessageHistory] = useState<MessageEvent<any>[]>([]);
-  const [message, setMessage] = useState('');
+  const [socketUrl, setSocketUrl] = useState("ws://localhost:4000");
+  const [messageHistory, setMessageHistory] = useState<String[]>([]);
+  const [message, setMessage] = useState("");
 
   const { sendMessage, lastMessage, readyState } = useWebSocket(socketUrl);
 
   useEffect(() => {
     if (lastMessage !== null) {
-      setMessageHistory((prev) => prev.concat(lastMessage));
+      const reader = new FileReader();
+      reader.readAsText(lastMessage.data);
+      console.log("Message received: ", lastMessage.data);
     }
   }, [lastMessage]);
 
   const handleClickSendMessage = useCallback(() => {
     sendMessage(message);
+    console.log("Message sent: ", message);
   }, [message, sendMessage]);
-
-  const handleMessageInput = (e: any) => {
-    setMessage(e.target.value);
-  }
 
   return (
     <div>
-      <input
-        placeholder='Escribi un mensaje...'
-        value={message}
-        onChange={handleMessageInput}
-      />
-      <button
-        onClick={handleClickSendMessage}
-      >
-        Click Me to send '{message}'
-      </button>
-      {lastMessage ? <span>Last message: {lastMessage.data}</span> : null}
-      <ul>
-        {messageHistory.map((message, idx) => (
-          <li key={idx}>{message ? message.data : null}</li>
-        ))}
-      </ul>
+      <div className="w-screen h-screen flex flex-col items-center gap-3">
+        <h1 className="flex pt-5">Chat App</h1>
+        <div className="w-2/3 flex flex-col bg-neutral-800 p-5 gap-2 h-5/6 rounded-lg   ">
+          <div className="flex justify-center ">Messages</div>
+          {messageHistory.map((msg, index) => (
+            <div className="bg-neutral-700 py-1 px-2 rounded-lg" key={index}>
+              {msg.data}
+            </div>
+          ))}
+        </div>
+        <div className="w-2/3 flex justify-between gap-2">
+          <input
+            className="bg-neutral-700 p-1 w-1/2"
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            placeholder="Type a message"
+          />
+          <div className="flex justify-between w-1/2 gap-2 ">
+            <button
+              className="bg-neutral-800 py-1 px-2 rounded-lg w-1/2"
+              onClick={handleClickSendMessage}
+            >
+              Send
+            </button>
+            <button
+              className="bg-red-600 py-1 px-2 rounded-lg w-1/2"
+              onClick={() => setMessageHistory([])}
+            >
+              Clear
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
