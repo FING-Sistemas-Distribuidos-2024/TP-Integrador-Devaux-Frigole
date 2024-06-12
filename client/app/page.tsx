@@ -1,15 +1,24 @@
 "use client";
 
-import React, { useState, useCallback, useEffect } from "react";
+import { unstable_noStore as noStore } from "next/cache";
+
+import React, { useState, useCallback, useEffect, use } from "react";
 import useWebSocket, { ReadyState } from "react-use-websocket";
 
 export const WebSocketDemo = () => {
+  noStore();
   // Public API that will echo messages sent to it back to the client
-  const [socketUrl, setSocketUrl] = useState("ws://127.0.0.1:4000");
+  const [socketUrl, setSocketUrl] = useState(
+    process.env.NEXT_PUBLIC_BACKEND_URL || "ws://localhost:700"
+  );
   const [messageHistory, setMessageHistory] = useState<MessageEvent<any>[]>([]);
   const [message, setMessage] = useState("");
 
   const { sendMessage, lastMessage, readyState } = useWebSocket(socketUrl);
+
+  useEffect(() => {
+    console.log("socketUrl: ", socketUrl);
+  }, [socketUrl]);
 
   useEffect(() => {
     if (lastMessage !== null) {
