@@ -24,9 +24,9 @@ async function saveMessage(key, message) {
 
 async function getMessage(key) {
   try {
-    const mensaje = await redisClient.get(key);
-    console.log(`Message: ${mensaje}`);
-    return mensaje;
+    const message = await redisClient.get(key);
+    console.log(`Message: ${message}`);
+    return message;
   } catch (err) {
     console.error('Error getting message:', err);
   }
@@ -34,14 +34,14 @@ async function getMessage(key) {
 
 async function getAllMessages() {
   try {
-    const claves = await redisClient.keys('*');
-    const mensajes = [];
-    for (const clave of claves) {
-      const mensaje = await redisClient.get(clave);
-      mensajes.push({ clave, mensaje });
+    const keys = await redisClient.keys('*');
+    const messages = [];
+    for (const key of keys) {
+      const message = await redisClient.get(key);
+      messages.push(message);
     }
-    console.log('All messages:', mensajes);
-    return mensajes;
+    console.log('All messages:', messages);
+    return messages;
   } catch (err) {
     console.error('Error getting all messages:', err);
   }
