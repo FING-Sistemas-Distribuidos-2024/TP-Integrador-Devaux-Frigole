@@ -13,10 +13,6 @@ RUN npm install
 # Copia el resto del código
 COPY . .
 
-#ARG BACKEND_URL
-#ENV NEXT_PUBLIC_BACKEND_URL=$BACKEND_URL
-ENV NEXT_PUBLIC_BACKEND_URL=10.43.76.226:4000
-
 # Construye la aplicación para producción
 RUN npm run build
 

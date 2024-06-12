@@ -1,53 +1,48 @@
 "use client";
-import { useEffect, useState } from "react";
-import io from "socket.io-client";
 
-console.log("Backend URL:", process.env.NEXT_PUBLIC_BACKEND_URL);
-const backURL = loadEnv();
+import { unstable_noStore as noStore } from "next/cache";
 
-const socket = io(await (backURL || "http://localhost:4000"));
+import React, { useState, useCallback, useEffect, use } from "react";
+import useWebSocket, { ReadyState } from "react-use-websocket";
 
-export default function Home() {
+const WebSocketDemo = () => {
+  noStore();
+  // Public API that will echo messages sent to it back to the client
+  const [socketUrl, setSocketUrl] = useState(
+    process.env.NEXT_PUBLIC_BACKEND_URL || "ws://localhost:700"
+  );
+  const [messageHistory, setMessageHistory] = useState<MessageEvent<any>[]>([]);
   const [message, setMessage] = useState("");
-  const [messages, setMessages] = useState<string[]>([]);
+
+  const { sendMessage, lastMessage, readyState } = useWebSocket(socketUrl);
 
   useEffect(() => {
-    socket.emit("join", "general"); // Join the general room
+    console.log("Frontend running - v4");
+    console.log("socketUrl: ", socketUrl);
+  }, [socketUrl]);
 
-    const messageListener = (message: string) => {
-      console.log("Received message from server:", message);
-      setMessages((prev) => [...prev, message]);
-    };
+  useEffect(() => {
+    if (lastMessage !== null) {
+      console.log("Message received: ", lastMessage);
+      setMessageHistory((prev) => prev.concat(lastMessage));
+    }
+  }, [lastMessage]);
 
-    socket.on("message", messageListener);
-
-    // Clean up the listener on component unmount
-    return () => {
-      socket.off("message", messageListener);
-    };
-  }, []); // <-- Agregar una dependencia vacía aquí
-
-  const sendMessage = () => {
-    console.log("Sent message:", message);
-    socket.emit("message", { room: "general", message });
+  const handleClickSendMessage = useCallback(() => {
+    sendMessage(message);
     setMessage("");
-  };
-
-  const clearHistory = () => {
-    console.log("Clearing history");
-    socket.emit("clear", { room: "general" });
-    setMessages([]);
-  };
+    console.log("Message sent: ", message);
+  }, [message, sendMessage]);
 
   return (
     <div>
       <div className="w-screen h-screen flex flex-col items-center gap-3">
         <h1 className="flex pt-5">Chat App</h1>
-        <div className="w-2/3 flex flex-col bg-neutral-800 p-5 gap-2 h-5/6 rounded-lg   ">
+        <div className="w-2/3 flex flex-col bg-neutral-800 p-5 gap-2 h-5/6 rounded-lg max-h-full  overflow-y-auto ">
           <div className="flex justify-center ">Messages</div>
-          {messages.map((msg, index) => (
+          {messageHistory.map((msg, index) => (
             <div className="bg-neutral-700 py-1 px-2 rounded-lg" key={index}>
-              {msg}
+              {msg.data}
             </div>
           ))}
         </div>
@@ -57,29 +52,30 @@ export default function Home() {
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             placeholder="Type a message"
+            onKeyDown={(event) => {
+              if (event.key === "Enter") {
+                handleClickSendMessage();
+              }
+            }}
           />
           <div className="flex justify-between w-1/2 gap-2 ">
             <button
               className="bg-neutral-800 py-1 px-2 rounded-lg w-1/2"
-              onClick={sendMessage}
+              onClick={handleClickSendMessage}
             >
               Send
             </button>
             <button
               className="bg-red-600 py-1 px-2 rounded-lg w-1/2"
-              onClick={() => setMessages([])}
+              onClick={() => setMessageHistory([])}
             >
               Clear
-            </button>
-            <button
-              className="bg-red-600 py-1 px-2 rounded-lg w-1/2"
-              onClick={() => clearHistory()}
-            >
-              Reset History
             </button>
           </div>
         </div>
       </div>
     </div>
   );
-}
+};
+
+export default WebSocketDemo;

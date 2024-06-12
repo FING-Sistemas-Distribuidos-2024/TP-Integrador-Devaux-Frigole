@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: chat-backend-bauti-fran
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: chat-backend-bauti-fran
@@ -14,9 +14,17 @@ spec:
     spec:
       containers:
       - name: chat-backend-bauti-fran
-        image: bautifrigole/chat-backend:latest
+        image: bautifrigole/chat-backend:v4.5
         ports:
         - containerPort: 4000
+        env:
+          - name: REDIS_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: redis-cluster
+                key: redis-password
+          - name: REDIS_IP
+            value: "redis-cluster"
 ---
 apiVersion: v1
 kind: Service
@@ -27,6 +35,6 @@ spec:
     app: chat-backend-bauti-fran
   ports:
   - protocol: TCP
-    port: 4000
+    port: 80
     targetPort: 4000
-  type: ClusterIP
+  type: LoadBalancer
