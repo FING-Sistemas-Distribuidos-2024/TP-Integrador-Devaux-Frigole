@@ -1,12 +1,17 @@
-const express = require("express");
-const http = require("http");
-const socketIo = require("socket.io");
-const { createClient } = require("redis");
-const cors = require("cors");
+let websocket = require('ws');
 
-const app = express();
-const server = http.createServer(app);
+const wss = new websocket.WebSocketServer({ port: 4000 });
 
+var clients = [];
+
+wss.on('connection', (ws) => {
+  ws.on('message', (data) => {
+    console.log('received: %s', data);
+    wss.clients.forEach(client => client.send(data));
+  });
+});
+
+/*
 // Configura CORS para Socket.IO
 const io = socketIo(server, {
   cors: {
@@ -14,15 +19,6 @@ const io = socketIo(server, {
     methods: ["GET", "POST"],
   },
 });
-
-const corsOptions = {
-  origin: '*', // Permite cualquier origen
-  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-  credentials: true,
-  optionsSuccessStatus: 204
-};
-
-app.use(cors(corsOptions));
 
 // Configuración y manejo del cliente de Redis
 const redisUrl = process.env.REDIS_URL || "redis://localhost:6379";
@@ -36,7 +32,7 @@ redisClient
     console.log("Connected to Redis");
 
     io.on("connection", (socket) => {
-      //console.log("Client connected");
+      console.log("Client connected");
       // Join a room
       socket.on("join", (room) => {
         socket.join(room);
@@ -83,11 +79,4 @@ redisClient
   })
   .catch((err) => {
     console.error("Failed to connect Redis client:", err);
-  });
-
-app.get("/", (req, res) => {
-  res.send("Chat server is running");
-});
-
-const PORT = process.env.PORT || 4000;
-server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+  });*/
