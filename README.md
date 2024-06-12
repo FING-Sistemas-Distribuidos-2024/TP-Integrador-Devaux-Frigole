@@ -93,6 +93,6 @@ Este comando abrirá la URL en tu navegador, permitiéndote interactuar con la a
 
 ### Despliegue Actual
 
-Actualmente, la aplicación se encuentra corriendo en http://10.230.110.15:80, en el cluster Proxmox de la materia.
+Actualmente, la aplicación se encuentra corriendo en http://10.230.110.13:80, en el cluster Proxmox de la materia.
 
 Si bien se persisten los mensajes en el cluster de Redis, los mismos no están siendo obtenidos cada vez que se une un nuevo usuario a la sala de chat. Nos gustaría implementarlo en un futuro.
