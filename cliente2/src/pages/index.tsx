@@ -2,7 +2,7 @@
 
 import React, { useState, useCallback, useEffect } from "react";
 import useWebSocket, { ReadyState } from "react-use-websocket";
-import { getBackURL } from "./serverUtils";
+export const dynamic = "force-dynamic";
 
 export const WebSocketDemo = () => {
   // Public API that will echo messages sent to it back to the client
@@ -13,17 +13,27 @@ export const WebSocketDemo = () => {
   const { sendMessage, lastMessage, readyState } = useWebSocket(socketUrl);
 
   useEffect(() => {
-    const fetchBackURL = async () => {
-      const url = await getBackURL();
-      setSocketUrl(url);
+    const getSocketUrl = async () => {
+      const response = await fetch("/api/backUrl");
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      const backUrl = data.BACKURL;
+      setSocketUrl(backUrl);
+
+      return backUrl;
     };
 
-    fetchBackURL();
+    getSocketUrl();
   }, []);
 
   useEffect(() => {
     if (lastMessage !== null) {
-      console.log("Message received: ", lastMessage);
+      console.log("Message received: ", lastMessage.data);
       setMessageHistory((prev) => prev.concat(lastMessage));
     }
   }, [lastMessage]);
