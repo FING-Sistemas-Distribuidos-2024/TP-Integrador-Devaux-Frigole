@@ -14,12 +14,12 @@ spec:
     spec:
       containers:
       - name: chat-frontend-bauti-fran
-        image: bautifrigole/chat-frontend:latest
+        image: bautifrigole/chat-frontend:v4
         ports:
         - containerPort: 3000
         env:
-        - name: NEXT_PUBLIC_BACKEND_URL
-          value: "http://10.230.110.12:80" # Esto no se setea en Next porque setea las variables de entorno en tiempo de compilación
+        - name: BACKEND_URL
+          value: "ws://10.230.110.11:80"
         #env:
         #- name: NEXT_PUBLIC_BACKEND_URL
         #  valueFrom:

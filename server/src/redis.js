@@ -1,7 +1,30 @@
-const { createClient } = require("redis");
+const Redis = require('ioredis');
+require('dotenv').config();
 
-const redisUrl = process.env.REDIS_URL || "redis://localhost:6379";
-const redisClient = createClient({ url: redisUrl });
+const redisIp = process.env.REDIS_IP;
+const redisPassword = process.env.REDIS_PASSWORD;
+console.log('Redis IP:', redisIp);
+
+if (redisPassword !== undefined) {
+    console.log('Redis password not null');
+}
+
+let redisClient;
+try {
+    redisClient = new Redis.Cluster([
+        {
+            host: redisIp,
+            port: 6379
+        }
+    ], {
+        redisOptions: {
+            password: redisPassword
+        }
+    });
+} catch (error) {
+    console.error('Error creating Redis client:', error);
+    process.exit(1);
+}
 
 redisClient.on('connect', () => {
   console.log('Connected to Redis');
@@ -10,8 +33,6 @@ redisClient.on('connect', () => {
 redisClient.on('error', (err) => {
   console.error('Error connecting to Redis:', err);
 });
-
-redisClient.connect();
 
 async function saveMessage(key, message) {
   try {
@@ -22,23 +43,18 @@ async function saveMessage(key, message) {
   }
 }
 
-async function getMessage(key) {
-  try {
-    const message = await redisClient.get(key);
-    console.log(`Message: ${message}`);
-    return message;
-  } catch (err) {
-    console.error('Error getting message:', err);
-  }
-}
-
 async function getAllMessages() {
   try {
-    const keys = await redisClient.keys('*');
+    const nodes = redisClient.nodes('master');
+    const keys = new Set();
+    for (const node of nodes) {
+      const nodeKeys = await node.keys('*');
+      nodeKeys.forEach(key => keys.add(key));
+    }
     const messages = [];
     for (const key of keys) {
       const message = await redisClient.get(key);
-      messages.push(message);
+      messages.push({ key, message });
     }
     console.log('All messages:', messages);
     return messages;
@@ -47,4 +63,4 @@ async function getAllMessages() {
   }
 }
 
-module.exports = { saveMessage, getMessage, getAllMessages };
+module.exports = { saveMessage, getAllMessages };

@@ -12,7 +12,7 @@ kubectl rollout restart deployment/chat-backend
 kubectl apply -f k8s/job.yaml
 
 # Obtener logs
-kubectl logs -l app=chat-frontend-bauti-fran
+kubectl logs -l app=chat-backend-bauti-fran
 
 minikube service list
 
@@ -46,7 +46,7 @@ docker build --build-arg BACKEND_URL=$BACKEND_URL -t chat-frontend ./client/
 
 kubectl apply -f ./k8s/frontend-deployment.yaml
 
-kubectl rollout restart deployment/chat-frontend
+kubectl rollout restart deployment/chat-backend-bauti-fran
 kubectl apply -f k8s/job.yaml
 
 
@@ -60,12 +60,15 @@ docker image tag chat-backend bautifrigole/chat-backend
 docker push bautifrigole/chat-backend:latest
 
 # Nueva versión
-docker image build -t chat-backend:v3 .
-docker image tag chat-backend:v3 bautifrigole/chat-backend:v3
-docker push bautifrigole/chat-backend:v3
+docker image build -t chat-frontend:v4 .
+docker image tag chat-frontend:v4 bautifrigole/chat-frontend:v4
+docker push bautifrigole/chat-frontend:v4
 
 
 # Cambiar desde minikube a kubernetes
 kubectl config get-contexts # Command to list available clusters.
 kubectl config use-context <context-name> # Command to switch to a different cluster.
 kubectl cluster-info # Command to verify the switching to a desired cluster.
+
+# Entrar en el pod y navegar en sus carpetas
+kubectl exec -it <nombre_pod> -- /bin/sh

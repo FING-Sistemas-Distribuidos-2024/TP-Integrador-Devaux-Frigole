@@ -5,7 +5,7 @@ import { unstable_noStore as noStore } from "next/cache";
 import React, { useState, useCallback, useEffect, use } from "react";
 import useWebSocket, { ReadyState } from "react-use-websocket";
 
-export const WebSocketDemo = () => {
+const WebSocketDemo = () => {
   noStore();
   // Public API that will echo messages sent to it back to the client
   const [socketUrl, setSocketUrl] = useState(
@@ -17,6 +17,7 @@ export const WebSocketDemo = () => {
   const { sendMessage, lastMessage, readyState } = useWebSocket(socketUrl);
 
   useEffect(() => {
+    console.log("Frontend running - v4");
     console.log("socketUrl: ", socketUrl);
   }, [socketUrl]);
 
